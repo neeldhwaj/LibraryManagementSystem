@@ -39,10 +39,10 @@ contract LibraryManagementSystem is Killable{
 
     //Member Data Structure
     struct Member {
-        uint memberID;
         string name;
         address account;
         MemberStatus memberStatus;
+        uint dateAdded;
     }
 
     //State Variables
@@ -50,6 +50,7 @@ contract LibraryManagementSystem is Killable{
     uint public totalNumMembers;
     mapping (uint => Book) public bookCatalog;
     mapping (uint => Member) public memberList;
+    mapping (address =>uint) public memberIndex;
 
     //Only owner modifier
     modifier onlyOwner() {
@@ -72,7 +73,8 @@ contract LibraryManagementSystem is Killable{
     function LibraryManagementSystem(string name) {
         owner = msg.sender;
         //Make owner as first member of the LibraryManagementSystem
-        memberList[totalNumMembers++] = Member(totalNumMembers, name, msg.sender, MemberStatus.Active);
+        memberList[++totalNumMembers] = Member(name, msg.sender, MemberStatus.Active, now);
+        memberIndex[owner] = totalNumMembers;
     }
 
     //Returns both name and account address
@@ -81,13 +83,67 @@ contract LibraryManagementSystem is Killable{
     }
 
     //Add a new member to the memberList
-    function addMember(string name, address account) public onlyMember {
-        memberList[totalNumMembers++] = Member(totalNumMembers, name, account, MemberStatus.Active);
+    function addMember(string name, address account) public onlyOwner {
+        var (ownerName, ownerAddress) = getOwner();
+        var index = memberIndex[account];
+
+        //Re-Activate member if it exists
+        if(index!=0) {
+            memberList[index].memberStatus = MemberStatus.Active;
+            return;
+        }
+
+        memberList[++totalNumMembers] = Member(name, account, MemberStatus.Active, now);
+        memberIndex[account] = totalNumMembers;
+
+        // for (var index = 0; index < totalNumMembers; index++) {
+        //     if (memberList[index].account == account) {
+        //         bool memberAlreadyAdded = true;
+        //     }
+        // }
+        // if (!memberAlreadyAdded && account!= ownerAddress) {
+        //     memberList[totalNumMembers++] = Member(totalNumMembers, name, account, MemberStatus.Active);            
+        // }
     }
+
+    //Deactivate Member. When member leaves the organisation. Also call removeBook() associated with the member
+    function deactivateMember(address account) public onlyOwner {
+        var index = memberIndex[account];
+
+        if (index!=0) {
+            memberList[index].memberStatus = MemberStatus.Inactive;
+        }
+        else {
+            throw;
+        }
+
+    }
+
+    //Get Member Details
+    function getMemberDetails(address account) public onlyMember constant returns(string, address, MemberStatus, uint) {
+        var index = memberIndex[account];
+        return(memberList[index].name, memberList[index].account, memberList[index].memberStatus, memberList[index].dateAdded);        
+    }
+
+    //Get owner Details
+    function getOwnerDetails() public constant returns(string, address, MemberStatus, uint){
+        getMemberDetails(memberList[1].account);
+    }
+
 
     //Add a new book to the bookCatalog
     function addBook(string title, string author, string publisher) public onlyMember {
-        bookCatalog[totalNumBooks++] = Book(totalNumBooks, title, author, publisher, BookState.Available, msg.sender, 0, 0, 0, msg.sender);
+        bookCatalog[totalNumBooks++] = Book({
+            bookID:totalNumBooks,
+            title: title,
+            author: author,
+            publisher: publisher,
+            bookState: BookState.Available,
+            owner: msg.sender,
+            lastIssueDate: 0,
+            dueDate: 0,
+            avgRating: 0,
+            borrower: msg.sender});
     }
 
     //Add a new member with Books
@@ -97,7 +153,7 @@ contract LibraryManagementSystem is Killable{
         //bookSeparator and fieldSeparator can be of user's choice.
         //e.g "Title1 | Author1 | Publisher1 ; Title2 | Author2 | Publisher2"
 
-        memberList[totalNumMembers++] = Member(totalNumMembers, name, msg.sender, MemberStatus.Active); // Added a member.
+        memberList[totalNumMembers++] = Member(name, msg.sender, MemberStatus.Active, now); // Added a member.
 
         //Now adding book(s)
         var books = speciallyConstructedBookString.toSlice();
@@ -123,7 +179,7 @@ contract LibraryManagementSystem is Killable{
     }
 
     //Get Member names
-    function getMemberList() returns (string) {
+    function getMemberList() constant returns (string) {
         string memory memberNames;
         for (var index = 0; index < totalNumMembers; index++) {
             memberNames = (memberNames.toSlice().concat("\n".toSlice())).toSlice().concat((memberList[index].name).toSlice());
@@ -143,12 +199,13 @@ contract LibraryManagementSystem is Killable{
     }
     
     //Borrow Book
-    function borrowBook(uint bookID, uint dueDate) public onlyMember {
-        bookCatalog[bookID].bookState = BookState.Borrowed;
-        bookCatalog[bookID].borrower = msg.sender;
-        bookCatalog[bookID].lastIssueDate = block.timestamp;
-        bookCatalog[bookID].dueDate = dueDate;
-        
+    function borrowBook(uint bookID) public onlyMember {
+        if(bookID<totalNumBooks && bookCatalog[bookID].bookState != BookState.Borrowed) {
+            bookCatalog[bookID].bookState = BookState.Borrowed;
+            bookCatalog[bookID].borrower = msg.sender;
+            bookCatalog[bookID].lastIssueDate = now;
+            bookCatalog[bookID].dueDate = bookCatalog[bookID].lastIssueDate + 2592000; //30 days from date of lastIssueDate
+        }        
     } 
     
     //Return Book
@@ -162,29 +219,14 @@ contract LibraryManagementSystem is Killable{
     function getBookDetails(uint bookID) public onlyMember constant returns(string) {
 
     }
-
-    //Get Member Details
-    function getMemberDetails(uint memberID) public onlyMember constant returns(string) {
-
-    }
     
-    //Deactivate Member. When member leaves the organisation. Also call removeBook() associated with the member
-    function deactivateMember(uint memberID) public onlyOwner {
-
-    }
-
     //Remove book from the catalogue. 
     function removeBook(uint bookID) public onlyOwner {
 
     }
 
     //Search a book. Return the book ID and use getBookDetails() to display the string
-    function searchBook(string name) public onlyMember returns(uint) {
+    function searchBook(string name) public onlyMember constant returns(uint) {
 
     }
-
-    //Kill contract
-    // function kill() public onlyOwner {
-    //     selfdestruct(owner);
-    // }
 }
