@@ -50,7 +50,7 @@ contract LibraryManagementSystem is Killable{
     uint public totalNumMembers;
     mapping (uint => Book) public bookCatalog;
     mapping (uint => Member) public memberList;
-    mapping (address =>uint) public memberIndex;
+    mapping (address => uint) public memberIndex;
 
     //Only owner modifier
     modifier onlyOwner() {
@@ -60,13 +60,17 @@ contract LibraryManagementSystem is Killable{
 
     //Only member modifier
     modifier onlyMember() {
-        for (var index = 0; index < totalNumMembers; index++) {
+        for (var index = 1; index <= totalNumMembers; index++) {
             if (msg.sender == memberList[index].account) {
                 bool isMember = true;
+                break;
             }
         }
-        if (isMember != true) throw;
-        _;
+        if (isMember != true) {
+            throw;
+        } else {
+            _;
+        }
     }
 
     //Constructor
@@ -133,8 +137,8 @@ contract LibraryManagementSystem is Killable{
 
     //Add a new book to the bookCatalog
     function addBook(string title, string author, string publisher) public onlyMember {
-        bookCatalog[totalNumBooks++] = Book({
-            bookID:totalNumBooks,
+        bookCatalog[++totalNumBooks] = Book({
+            bookID: totalNumBooks,
             title: title,
             author: author,
             publisher: publisher,
@@ -143,7 +147,8 @@ contract LibraryManagementSystem is Killable{
             lastIssueDate: 0,
             dueDate: 0,
             avgRating: 0,
-            borrower: msg.sender});
+            borrower: msg.sender
+        });
     }
 
     //Add a new member with Books
