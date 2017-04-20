@@ -58,6 +58,25 @@ contract('LibraryManagementsystem', function() {
         });
     });
 
+    describe ('getMemberDetails', function() {
+        it('Should return owner details', async function() {
+            let [name, account, memberStatus, dateAdded] = await lms.getMemberDetails(web3.eth.coinbase);
+            assert.equal(name, 'Neel');
+            assert.equal(account, web3.eth.coinbase);
+            assert.equal(memberStatus.valueOf(), 0);
+            // console.log(Date.now());
+        });
+
+        it('Should return any member details', async function() {
+            await lms.addMember("Chandan Kumar", 0x0);
+            let [name, account, memberStatus, dateAdded] = await lms.getMemberDetails(0x0);
+            assert.equal(name, 'Chandan Kumar');
+            assert.equal(account, 0x0);
+            assert.equal(memberStatus.valueOf(), 0);
+
+        });
+    });
+
     describe ('getMemberList', function() {
         it.skip('Should return a String with names of all the members', async function() {
             let memberList = '';
