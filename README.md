@@ -1,11 +1,14 @@
-A community library management system
+# A community library management system
 
-Pool your books to create a virtual library. Implemented on the Ethereum blockchain using Solidity, Truffle, Zeppelin and others.
+[![Build Status](https://travis-ci.org/neeldhwaj/LibraryManagementSystem.svg?branch=master)]
 
+Virtual Community Library. Implemented on the Ethereum blockchain using Solidity, Truffle, Zeppelin and others.
+```
 $npm install -g truffle
 $truffle compile
 $truffle migrate
 $truffle test
+```
 
 
 Building and the frontend
