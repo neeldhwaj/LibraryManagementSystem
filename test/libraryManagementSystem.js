@@ -51,11 +51,10 @@ contract('LibraryManagementsystem', function() {
     describe ('addBook', function() {
         it('Should add a book', async function() {
             let bookCount = await lms.getNumberOfBooks();
-            assert.equal(bookCount, 0, 'Inititally should be zero');
-
-            await lms.addBook('titel1', 'author1', 'publisher1');
-            bookCount = await lms.getNumberOfBooks();
-            assert.equal(bookCount, 1, 'Should be 1');
+            assert.equal(bookCount, 0);
+            await lms.addBook("title", "author", "publisher");
+            bookCount = await lms.totalNumBooks();
+            assert.equal(bookCount, 1);
         });
     });
 
