@@ -1,5 +1,5 @@
 'use strict';
-import expectThrow from './helpers/expectThrow.js';
+import expectThrow from './helpers/expectThrow';
 
 const LibraryManagementsystem = artifacts.require('../contracts/LibraryManagementSystem.sol');
 
@@ -89,6 +89,33 @@ contract('LibraryManagementsystem', function() {
             console.log(memberList);
             assert.equal('\nNeel\nNeelP\nSanchitB', memberList);
 
+        });
+    });
+
+    describe ('deactivateMember', function() {
+        it('Should deactivate a member when it exists', async function() {
+            await lms.addMember('Test1', 0x0);
+            let [name, account, memberStatus, dateAdded] = await lms.getMemberDetails(0x0);
+            assert.equal(name, 'Test1');
+            assert.equal(account, 0x0);
+            assert.equal(memberStatus.valueOf(), 0);
+
+            await lms.deactivateMember(0x0);
+            [name, account, memberStatus, dateAdded] = await lms.getMemberDetails(0x0);
+            assert.equal(name, 'Test1');
+            assert.equal(account, 0x0);
+            assert.equal(memberStatus.valueOf(), 1);
+        });
+
+        it('expect a throw when memeber doesnt exists', async function() {
+            await lms.addMember('Test1', 0x0);
+            let [name, account, memberStatus, dateAdded] = await lms.getMemberDetails(0x0);
+            assert.equal(name, 'Test1');
+            assert.equal(account, 0x0);
+            assert.equal(memberStatus.valueOf(), 0);
+
+            await lms.deactivateMember(0x0);
+            await expectThrow(lms.deactivateMember(0x01));
         });
     });
 

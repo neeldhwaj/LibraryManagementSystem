@@ -88,7 +88,7 @@ contract LibraryManagementSystem is Killable{
 
     //Add a new member to the memberList
     function addMember(string name, address account) public onlyOwner {
-        var (ownerName, ownerAddress) = getOwner();
+        // var (ownerName, ownerAddress) = getOwner();
         var index = memberIndex[account];
 
         //Re-Activate member if it exists
@@ -97,6 +97,7 @@ contract LibraryManagementSystem is Killable{
             return;
         }
 
+        //If index is 0; Add the member
         memberList[++totalNumMembers] = Member(name, account, MemberStatus.Active, now);
         memberIndex[account] = totalNumMembers;
 
@@ -211,7 +212,7 @@ contract LibraryManagementSystem is Killable{
             bookCatalog[bookID].lastIssueDate = now;
             bookCatalog[bookID].dueDate = bookCatalog[bookID].lastIssueDate + 2592000; //30 days from date of lastIssueDate
         }        
-    } 
+    }
     
     //Return Book
     function returnBook(uint bookID) public onlyMember {
@@ -230,8 +231,4 @@ contract LibraryManagementSystem is Killable{
 
     }
 
-    //Search a book. Return the book ID and use getBookDetails() to display the string
-    function searchBook(string name) public onlyMember constant returns(uint) {
-
-    }
 }
