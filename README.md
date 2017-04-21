@@ -1,6 +1,6 @@
 # A community library management system
 
-![Build Status](https://travis-ci.org/neeldhwaj/LibraryManagementSystem.svg?branch=master)
+[![Build Status](https://travis-ci.org/neeldhwaj/LibraryManagementSystem.svg?branch=master)](https://travis-ci.org/neeldhwaj/LibraryManagementSystem)
 
 Virtual Community Library. Implemented on the Ethereum blockchain using Solidity, Truffle, Zeppelin and others.
 ```
