@@ -119,15 +119,15 @@ contract('LibraryManagementsystem', function() {
         });
     });
 
-    // describe('addBook', function() {
-    //     it('Should add a book', async function() {
-    //         let bookCount = await lms.getNumberOfBooks();
-    //         assert.equal(bookCount, 0, 'Should be zero inititally');
+    describe('addBook', function() {
+        it('Should add a book', async function() {
+            let bookCount = await lms.getNumberOfBooks();
+            assert.equal(bookCount, 0, 'Should be zero inititally');
 
-    //         await lms.addBook('title1', 'author1', 'publisher1');
-    //         bookCount = await lms.getNumberOfBooks();
-    //         assert.equal(bookCount, 1, 'Should change to 1')
-    //     });
-    // });
+            await lms.addBook('title1', 'author1', 'publisher1');
+            bookCount = await lms.getNumberOfBooks();
+            assert.equal(bookCount, 1, 'Should change to 1')
+        });
+    });
    
 });
